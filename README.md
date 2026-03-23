@@ -11,7 +11,8 @@
   - [비기능 요구사항](#비기능-요구사항)
 - **설계**
   - [시스템 아키텍처](#시스템-아키텍처)
-  - [데이터베이스 설계 (ERD)](#데이터베이스-설계-erd)
+  - [데이터베이스 설계 (ERD)](#데이터베이스-설계(ERD))
+  - [데이터베이스 명세서](#데이터베이스-명세서)
   - [API 설계](#api-설계)
 - **구현**
   - [프론트엔드](#프론트엔드)
@@ -139,60 +140,90 @@ Database (MongoDB 또는 MySQL)
 
 ---
 
-## 2.2 데이터베이스 설계 (ERD)
+## 데이터베이스 설계 (ERD)
 
-<img width="2080" height="2808" alt="image" src="https://github.com/user-attachments/assets/19886174-ccc0-4e66-a0f0-cead0e6006e4" />
+<img src="https://github.com/user-attachments/assets/4d625b80-9fac-4783-95b7-d1c3a546f57b" width="480" align="left" style="margin-right: 20px;">
 
-
-### User
-
-| 필드         | 설명     |
-| ---------- | ------ |
-| user_id    | 사용자 ID |
-| email      | 이메일    |
-| password   | 비밀번호   |
-| name       | 사용자 이름 |
-| created_at | 생성 날짜  |
-
----
-
-### Group
-
-| 필드         | 설명     |
-| ---------- | ------ |
-| group_id   | 그룹 ID  |
-| group_name | 그룹 이름  |
-| creator_id | 생성자 ID |
-| created_at | 생성 날짜  |
+### ERD 관계 설명
+#### ① 한 사용자는 여러 여행에 참여할 수 있다.
+#### ② 한 사용자는 여러 여행을 생성할 수 있다.
+#### ③ 일정은 누가 작성했는지 기록한다. 
+#### ④ 하나의 여행에는 여러 일정이 존재한다. 
+#### ⑤ 하나의 장소는 여러 일정에서 사용될 수 있다. 
+#### ⑥ 하나의 여행에는 여러 사용자가 참여할 수 있다.
+#### ⑦ 하나의 여행에는 여러 장소가 등록될 수 있다.
+<br clear="both">
 
 ---
 
-### GroupMember
+## 데이터베이스 명세서
 
-| 필드       | 설명     |
-| -------- | ------ |
-| id       | 고유 ID  |
-| group_id | 그룹 ID  |
-| user_id  | 사용자 ID |
-| role     | 사용자 역할 |
+### 1. Users 테이블
 
-설명
-사용자와 그룹 사이의 다대다(N:M) 관계를 관리하는 테이블이다.
+사용자 계정 정보를 저장하는 테이블이다.
 
----
+| 컬럼명        | 데이터 타입       | 제약조건                      | 설명        |
+| ---------- | ------------ | ------------------------- | --------- |
+| user_id    | INT          | PK, AUTO_INCREMENT        | 사용자 고유 ID |
+| email      | VARCHAR(100) | UNIQUE, NOT NULL          | 사용자 이메일   |
+| password   | VARCHAR(255) | NOT NULL                  | 사용자 비밀번호  |
+| name       | VARCHAR(50)  | NOT NULL                  | 사용자 이름    |
+| created_at | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP | 계정 생성 시간  |
 
-### Schedule
+### 2. Trips 테이블
 
-| 필드          | 설명     |
-| ----------- | ------ |
-| schedule_id | 일정 ID  |
-| group_id    | 그룹 ID  |
-| creator_id  | 작성자 ID |
-| title       | 일정 제목  |
-| description | 일정 설명  |
-| start_time  | 시작 시간  |
-| end_time    | 종료 시간  |
-| created_at  | 생성 시간  |
+사용자가 생성한 여행 계획 정보를 저장하는 테이블이다.
+
+| 컬럼명         | 데이터 타입       | 제약조건                      | 설명     |
+| ----------- | ------------ | ------------------------- | ------ |
+| trip_id     | INT          | PK, AUTO_INCREMENT        | 여행 ID  |
+| creator_id  | INT          | FK                        | 여행 생성자 |
+| title       | VARCHAR(100) | NOT NULL                  | 여행 제목  |
+| description | TEXT         |                           | 여행 설명  |
+| start_date  | DATE         |                           | 여행 시작일 |
+| end_date    | DATE         |                           | 여행 종료일 |
+| created_at  | TIMESTAMP    | DEFAULT CURRENT_TIMESTAMP | 생성 시간  |
+
+### 3. Trip_Members 테이블
+
+여행에 참여하는 사용자 정보를 관리하는 테이블이다.
+
+| 컬럼명       | 데이터 타입                 | 제약조건               | 설명     |
+| --------- | ---------------------- | ------------------ | ------ |
+| member_id | INT                    | PK, AUTO_INCREMENT | 참여자 ID |
+| trip_id   | INT                    | FK                 | 여행 ID  |
+| user_id   | INT                    | FK                 | 사용자 ID |
+| role      | ENUM('owner','member') | DEFAULT 'member'   | 사용자 역할 |
+
+### 4. Places 테이블
+
+여행 중 방문할 장소 정보를 저장하는 테이블이다.
+
+| 컬럼명         | 데이터 타입        | 제약조건               | 설명    |
+| ----------- | ------------- | ------------------ | ----- |
+| place_id    | INT           | PK, AUTO_INCREMENT | 장소 ID |
+| trip_id     | INT           | FK                 | 여행 ID |
+| name        | VARCHAR(100)  | NOT NULL           | 장소 이름 |
+| latitude    | DECIMAL(10,7) | NOT NULL           | 위도    |
+| longitude   | DECIMAL(10,7) | NOT NULL           | 경도    |
+| description | TEXT          |                    | 장소 설명 |
+
+### 5. Schedules 테이블
+
+여행 일정 정보를 저장하는 테이블이다.
+
+| 컬럼명         | 데이터 타입                          | 제약조건                      | 설명              |
+| ----------- | ------------------------------- | ------------------------- | --------------- |
+| schedule_id | INT                             | PK, AUTO_INCREMENT        | 일정 ID           |
+| trip_id     | INT                             | FK                        | 여행 ID           |
+| place_id    | INT                             | FK                        | 장소 ID (NULL 허용) |
+| creator_id  | INT                             | FK                        | 일정 작성자          |
+| title       | VARCHAR(100)                    | NOT NULL                  | 일정 제목           |
+| description | TEXT                            |                           | 일정 설명           |
+| start_time  | DATETIME                        |                           | 일정 시작 시간        |
+| end_time    | DATETIME                        |                           | 일정 종료 시간        |
+| visibility  | ENUM('public','trip','private') | DEFAULT 'trip'            | 일정 공개 범위        |
+| created_at  | TIMESTAMP                       | DEFAULT CURRENT_TIMESTAMP | 생성 시간           |
 
 ---
 
