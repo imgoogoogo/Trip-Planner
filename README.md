@@ -141,6 +141,9 @@ Database (MongoDB 또는 MySQL)
 
 ## 2.2 데이터베이스 설계 (ERD)
 
+<img width="2080" height="2808" alt="image" src="https://github.com/user-attachments/assets/19886174-ccc0-4e66-a0f0-cead0e6006e4" />
+
+
 ### User
 
 | 필드         | 설명     |
