@@ -20,12 +20,11 @@
   - [백엔드](#백엔드)
   - [데이터베이스](#데이터베이스)
 - **테스트**
-  - [테스트 전략](#테스트-전략)
-  - [테스트 케이스](#테스트-케이스)
-  - [테스트 결과](#테스트-결과)
+  - [테스트 케이스 및 결과](#테스트-케이스-및-결과)
  
 - [설치 및 실행](#설치-및-실행)
 - [향후 개선 사항](#향후-개선-사항)
+- [결론](#결론)
 
 <br>
 
@@ -185,7 +184,6 @@
 | end_date | DATE | NULL | - | NULL | 여행 종료일 |
 | image_url | TEXT | NULL | - | NULL | 대표 이미지 URL |
 | likes | INT(11) | NULL | - | 0 | 좋아요 수 |
-| saves | INT(11) | NULL | - | 0 | 저장 수 |
 | is_public | TINYINT(1) | NULL | - | 0 | 공개 여부 (0: 비공개, 1: 공개) |
 | created_at | TIMESTAMP | NULL | - | CURRENT_TIMESTAMP | 생성 일시 |
 
@@ -196,7 +194,6 @@
 | member_id | INT(11) | NOT NULL | PK | AUTO_INCREMENT | 멤버 고유 ID |
 | trip_id | INT(11) | NOT NULL | FK | - | 여행 ID (→ trips, CASCADE) |
 | user_id | INT(11) | NOT NULL | FK | - | 사용자 ID (→ users, CASCADE) |
-| role | ENUM | NULL | - | `member` | 역할 (`owner` / `member`) |
 
 ### trip_likes
 
@@ -217,7 +214,6 @@
 | description | TEXT | NULL | - | NULL | 스케줄 설명 |
 | start_time | DATETIME | NULL | - | NULL | 시작 일시 (날짜로 Day 계산) |
 | end_time | DATETIME | NULL | - | NULL | 종료 일시 |
-| visibility | ENUM | NULL | - | `trip` | 공개 범위 (`public` / `trip` / `private`) |
 | created_at | TIMESTAMP | NULL | - | CURRENT_TIMESTAMP | 생성 일시 |
 
 ---
@@ -284,7 +280,7 @@ Authorization: Bearer <token>
 
 ---
 
-### ✈️ Trips API
+### Trips API
 
 #### 여행 생성
 ```
@@ -317,7 +313,7 @@ Content-Type: application/json
 GET /api/trips/popular
 Authorization: Bearer <token>  (선택)
 ```
-좋아요 수 기준 상위 20개를 반환합니다. 로그인 시 `user_liked` 필드 포함.
+좋아요 수 기준 상위 20개를 반환합니다.
 
 **Response 200**
 ```json
@@ -447,7 +443,7 @@ Content-Type: application/json
 
 ---
 
-### 📅 Schedules API
+### Schedules API
 
 #### 스케줄 생성
 ```
@@ -545,7 +541,7 @@ DELETE /api/schedules/:id
 
 ---
 
-### 📍 Places API
+### Places API
 
 #### 장소 생성
 ```
@@ -625,8 +621,8 @@ DELETE /api/places/:id
 | 빌드 도구 | Vite |
 | 라우팅 | React Router DOM 7 |
 | 지도 | React-Leaflet 5 + Leaflet 1.9 |
-| 스타일링 | Tailwind CSS 3 |
-| 인증 | jwt-decode |
+| 스타일링 | Tailwind CSS |
+| 인증 | jwt |
 | 외부 API | Nominatim (OSM), REST Countries |
 
 ---
@@ -639,7 +635,7 @@ DELETE /api/places/:id
 | 프레임워크 | Express 5 |
 | 데이터베이스 | MariaDB (MySQL 호환) |
 | ORM/드라이버 | mysql2 |
-| 인증 | Passport.js (Google OAuth 2.0) + JWT |
+| 인증 | Google OAuth 2.0 + JWT |
 | 환경변수 | dotenv |
 | 세션 | express-session |
 
@@ -649,7 +645,7 @@ DELETE /api/places/:id
 
 | 기술 | 버전 | 설명 |
 |------|------|------|
-| MariaDB | 12.1.2 | MySQL 호환 관계형 데이터베이스. 여행·일정·사용자 데이터 영구 저장 |
+| MariaDB | 12.1.2 | MySQL 호환 관계형 데이터베이스. 여행/일정/사용자 데이터 영구 저장 |
 | mysql2 | 3.20.0 | Node.js용 MySQL/MariaDB 드라이버. Callback 방식 쿼리 실행 |
 
 ### 저장 데이터 설명
@@ -667,32 +663,26 @@ DELETE /api/places/:id
 
 ---
 
-## 4.1 테스트 전략
+## 테스트 전략
 
 시스템의 주요 기능에 대해 기능 테스트를 수행하여 정상 동작 여부를 확인한다.
 
 ---
 
-## 4.2 테스트 케이스
+## 테스트 케이스
 
-| 테스트 ID | 기능    | 테스트 내용      | 기대 결과  |
-| ------ | ----- | ----------- | ------ |
-| TC-01  | 회원가입  | 이메일 입력 후 가입 | 회원 생성  |
-| TC-02  | 로그인   | 올바른 계정 입력   | 로그인 성공 |
-| TC-03  | 그룹 생성 | 그룹 이름 입력    | 그룹 생성  |
-| TC-04  | 일정 등록 | 일정 정보 입력    | 일정 저장  |
-| TC-05  | 일정 수정 | 일정 수정       | 수정 성공  |
-| TC-06  | 일정 삭제 | 일정 삭제       | 삭제 성공  |
+| 테스트 항목 | 입력 | 예상 결과 | 실제 결과 |
+|------------|------|----------|----------|
+| 구글 로그인 | 구글 계정 선택 | JWT 발급 후 메인 페이지 이동 | 동일 |
+| 여행 생성 | 제목, 나라, 날짜, 장소 1개 입력 | DB 저장 후 나의 여행에 표시 | 동일 |
+| 비로그인 여행 생성 시도 | 미로그인 상태로 Create Trip 클릭 | 로그인 필요 알림 표시 | 동일 |
+| 여행 수정 | 기존 여행 제목 변경 후 저장 | 변경 내용 DB 반영 | 동일 |
+| 여행 삭제 | 삭제 버튼 클릭 후 확인 | 목록에서 제거 및 DB 삭제 | 동일 |
+| 공개/비공개 전환 | 토글 클릭 | 공유된 여행 목록 노출 여부 변경 | 동일 |
+| 장소 검색 | 검색창에 "카페" 입력 | 지도에 카페 마커 표시 | 동일 |
+| 좋아요 | 공유된 여행에서 좋아요 클릭 | 좋아요 +1 | 동일 |
 
----
-
-## 4.3 테스트 결과
-
-* 회원가입 정상 동작
-* 로그인 정상 동작
-* 그룹 생성 정상 동작
-* 일정 등록 및 수정 정상 동작
-* 일정 삭제 정상 동작
+<br>
 
 ---
 
@@ -731,7 +721,7 @@ ALTER TABLE trips ADD COLUMN country VARCHAR(100) DEFAULT NULL AFTER title;
 ALTER TABLE trips ADD COLUMN is_public TINYINT(1) DEFAULT 0;
 ```
 
-### 3. 백엔드 설정
+### 백엔드 설정
 
 ```bash
 cd backend
@@ -800,3 +790,20 @@ npm run dev
 | **지도 경로 표시** | 추가된 장소들을 연결하는 이동 경로 시각화 |
 | **즐겨찾기/저장** | 다른 사용자의 여행을 저장하여 나중에 참고 (saves 컬럼 활용) |
 
+<br>
+
+---
+
+## 결론
+
+이번 컴퓨터공학종합설계 개인 프로젝트는 사용자가 여행 일정을 직접 계획하고 공유할 수 있는 웹 애플리케이션을 설계 및 구현하였습니다.
+
+React 기반의 프론트엔드와 Node.js(Express) 백엔드를 연동하고, MariaDB를 통해 여행 데이터를 관리하는 풀스택 구조를 직접 구축하였습니다.
+
+OpenStreetMap과 Nominatim API를 활용해 외부 서비스 연동 경험을 쌓았으며,
+Google OAuth 2.0을 통한 인증 흐름과 JWT 기반 API 보안을 적용하였습니다.
+
+기능 구현 과정에서 컴포넌트 간 상태 관리, REST API 설계,
+데이터베이스 관계 설계 등 실무에서 요구되는 개발 역량을 경험할 수 있었습니다.
+
+한달이라는 부족한 시간에서 구현 못한 기능도 있었지만 빠른 프로토타입 개발 경험을 통해 다음 프로젝트에 도움이 많이 될 것 같습니다.
