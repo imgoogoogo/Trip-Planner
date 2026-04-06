@@ -9,6 +9,7 @@
   - [예상 사용자](#예상-사용자)
   - [기능 요구사항](#기능-요구사항)
   - [비기능 요구사항](#비기능-요구사항)
+  - [유스케이스](#유스케이스)
 - **설계**
   - [시스템 아키텍처](#시스템-아키텍처)
   - [데이터베이스 설계 (ERD)](#데이터베이스-설계(ERD))
@@ -123,6 +124,14 @@
 
 ---
 
+## 유스케이스
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/690c62e0-61ec-412d-bac3-fac722fb8ca1" />
+
+
+<br>
+
+---
+
 ## 시스템 아키텍처
 
 <img width="3044" height="1568" alt="image" src="https://github.com/user-attachments/assets/c2176118-bc50-4e10-8c42-4ab0c8181f69" />
@@ -131,7 +140,7 @@
 
 ---
 
-## 데이터베이스 설계 (ERD)
+## 데이터베이스 설계(ERD)
 
 <img src="https://github.com/user-attachments/assets/7556c1cb-48ac-4a5f-9cdf-9a03ca61b152" width="480" align="left" style="margin-right: 20px;">
 
